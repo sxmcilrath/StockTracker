@@ -1,0 +1,56 @@
+﻿@page "/alerts"
+@rendermode InteractiveServer 
+<h3>Alerts</h3>
+
+<div class="alert-body-container">
+    <div class="current-alerts-container">Current Alerts</div>
+    <div class="alert-buttons">
+        <button class="alert-button" @onclick="() => addAlertPopup = !addAlertPopup">Add Alert</button>
+        <button class="alert-button" @onclick="() => selectAlertPopup = !selectAlertPopup">Select Alert</button>
+    </div>
+</div>
+
+@if (addAlertPopup)
+{
+    <div class="MD-Overlay" @onclick="() => addAlertPopup = false">
+        <div class="MD-Popup" @onclick:stopPropagation>
+            <h4>Add New Alert</h4>
+            <p>Enter the alert details below:</p>
+            <!-- Your Add Alert Form -->
+            <form>
+                <input type="text" placeholder="Alert Name" />
+                <input type="text" placeholder="Description" />
+                <button type="button" class="popup-button" @onclick="SubmitAlert">Submit</button>
+            </form>
+            <button class="popup-button" @onclick="() => addAlertPopup = false">Close</button>
+        </div>
+    </div>
+}
+
+@if (selectAlertPopup)
+{
+    <div class="MD-Overlay" @onclick="() => selectAlertPopup = false">
+        <div class="MD-Popup" @onclick:stopPropagation>
+            <h4>Select Alert</h4>
+            <p>Choose an alert from the list:</p>
+            <!-- Your Alert Selection List -->
+            <ul>
+                <li>Alert 1</li>
+                <li>Alert 2</li>
+                <li>Alert 3</li>
+            </ul>
+            <button class="popup-button" @onclick="() => selectAlertPopup = false">Close</button>
+        </div>
+    </div>
+}
+
+@code {
+    private bool addAlertPopup = false;
+    private bool selectAlertPopup = false;
+
+    private void SubmitAlert()
+    {
+        // Add your submission logic here
+        addAlertPopup = false;
+    }
+}

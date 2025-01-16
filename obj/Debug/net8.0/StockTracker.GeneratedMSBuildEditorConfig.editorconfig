@@ -53,3 +53,7 @@ build_metadata.AdditionalFiles.CssScope = b-8qmdy2ekf8
 [C:/MAIN/Coding/dotNET/Projects/StockTracker/StockTracker/Components/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-bamvlf1gzx
+
+[C:/MAIN/Coding/dotNET/Projects/StockTracker/StockTracker/Components/Pages/Alerts.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBbGVydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-hopkub4i4p

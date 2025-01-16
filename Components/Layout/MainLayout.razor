@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
+
 <div class="page">
    
 
@@ -7,10 +8,11 @@
         <div class="top-row px-4">
             <h1>StockTracker</h1>
             <div class="nav-container">
-                <button class="nav-page">Home</button>
-                
-                <button class="nav-page">Alerts</button>
-              
+                <button class="nav-page" @onclick="NavigateToHome">Home</button>
+                <NavLink class="nav-link" href="/alerts">Alerts</NavLink>
+                <NavLink class="nav-link" href="/">Home</NavLink>
+                <button class="nav-page" @onclick="NavigateToAlerts">Alerts</button>
+                <h1> </h1>
             </div>    
         </div>
 
@@ -25,3 +27,16 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code{
+
+    private void NavigateToAlerts()
+    {
+        Navigation.NavigateTo("/alerts");
+    }
+
+    private void NavigateToHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}
