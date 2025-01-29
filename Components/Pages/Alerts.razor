@@ -1,6 +1,10 @@
 ﻿@page "/alerts"
+@inject HttpClient Http
 @rendermode InteractiveServer 
+<h2>AAPL Data: @response   </h2>
+<button @onclick = "GetStockInfo">Retrieve AAPL </button>
 <h3>Alerts</h3>
+
 
 <div class="alert-body-container">
     <div class="current-alerts-container">Current Alerts</div>
@@ -47,10 +51,28 @@
 @code {
     private bool addAlertPopup = false;
     private bool selectAlertPopup = false;
+    private string response = "waiting";
 
     private void SubmitAlert()
     {
         // Add your submission logic here
         addAlertPopup = false;
+    }
+
+    private async Task GetStockInfo()
+    {
+        response = "running";
+        var symbol = "AAPL";
+        var url = $"http://127.0.0.1:5000/get-stock-info?symbols={symbol}";
+
+        try
+        {
+            var result = await Http.GetStringAsync(url);
+            response = result;
+        }
+        catch(Exception ex)
+        {
+            response = $"Error: {ex.Message}";
+        }
     }
 }
