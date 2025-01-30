@@ -1,3 +1,4 @@
+using StockTracker.BackgroundServices;
 using StockTracker.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,10 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddHttpClient();
 
+builder.Services.AddFluentEmail(builder.Configuration);
+builder.Services.AddScoped<IEmailService, EmailService>();
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

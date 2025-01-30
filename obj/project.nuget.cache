@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "xDUeCAn0zAk=",
+  "dgSpecHash": "UIQfsOVhKAA=",
   "success": true,
   "projectFilePath": "C:\\MAIN\\Coding\\dotNET\\Projects\\StockTracker\\StockTracker\\StockTracker.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\mac5p\\.nuget\\packages\\fluentemail.core\\3.0.2\\fluentemail.core.3.0.2.nupkg.sha512",
+    "C:\\Users\\mac5p\\.nuget\\packages\\fluentemail.smtp\\3.0.2\\fluentemail.smtp.3.0.2.nupkg.sha512",
+    "C:\\Users\\mac5p\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\5.0.0\\microsoft.extensions.dependencyinjection.abstractions.5.0.0.nupkg.sha512"
+  ],
   "logs": []
 }
