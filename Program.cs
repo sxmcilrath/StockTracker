@@ -6,13 +6,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
+// Add the controllers (this is the missing part)
+builder.Services.AddControllers();  // <-- Add this line to register controller services
 builder.Services.AddHttpClient();
 
 builder.Services.AddFluentEmail(builder.Configuration);
 builder.Services.AddScoped<IEmailService, EmailService>();
 var app = builder.Build();
 
+//setup API endpoints
+app.MapControllers();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

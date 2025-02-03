@@ -1,4 +1,12 @@
-﻿namespace StockTracker.BackgroundServices
+﻿using System.Diagnostics;
+using System.Net;
+using System.Net.Mail;
+using FluentEmail.Core;
+using FluentEmail.Smtp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace StockTracker.BackgroundServices
 {
     public static class FluentEmailExtensions
     {
@@ -10,9 +18,16 @@
             var host = emailSettings["SMTPSetting:Host"];
             var port = emailSettings.GetValue<int>("Port");
             var userName = emailSettings["UserName"];
-            var password = emailSettings["Password"];
+            var password = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+
             services.AddFluentEmail(defaultFromEmail)
-                .AddSmtpSender(host, port, userName, password);
+                .AddSmtpSender(new SmtpClient(host)
+                {
+                    Port = port,
+                    Credentials = new System.Net.NetworkCredential(userName, password),
+                    EnableSsl = true
+                });
+            
 
         }
 
