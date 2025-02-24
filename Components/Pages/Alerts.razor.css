@@ -1,4 +1,9 @@
-﻿.alert-body-container {
+﻿
+html, body {
+    overflow: auto;
+}
+
+.alert-body-container {
     padding: 2rem;
     text-align: center;
 }
@@ -13,17 +18,29 @@
 .alert-button {
     padding: 0.5rem 1rem;
     font-size: 1rem;
+    font-family: "Anonymous Pro";
     border: none;
     border-radius: 5px;
-    background-color: #007bff;
+    background-color: var(--prim-orange);
     color: white;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 100px;
 }
 
 .alert-button:hover {
-    background-color: #0056b3;
+    background-color: var(--prim-grey);
     transform: scale(1.05);
+}
+
+.alert-list-container {
+    background-color: var(--prim-grey);
+    
+
+    height: 100px; /*will need to change at some point*/
+    width: 100%;
+    padding-top: 20px;
+    border-radius: 0.5rem
 }
 
 /* Reuse MD-Overlay and MD-Popup styling from your mechanic dashboard */
