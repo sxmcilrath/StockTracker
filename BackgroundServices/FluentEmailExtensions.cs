@@ -25,7 +25,7 @@ namespace StockTracker.BackgroundServices
                 {
                     Port = port,
                     Credentials = new System.Net.NetworkCredential(userName, password),
-                    EnableSsl = true
+                    EnableSsl = false
                 });
             
 

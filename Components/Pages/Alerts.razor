@@ -1,8 +1,12 @@
 ﻿@page "/alerts"
 @inject HttpClient Http
+@using BackgroundServices
 @rendermode InteractiveServer 
+
+
 <h2>AAPL Data: @response   </h2>
 <button @onclick = "GetStockInfo">Retrieve AAPL </button>
+<button @onclick="TestEmail" > Test Email</button>
 <h3>Alerts</h3>
 
 
@@ -74,5 +78,21 @@
         {
             response = $"Error: {ex.Message}";
         }
+    }
+
+    private async Task TestEmail()
+    {
+        response = "running";
+
+        try
+        {
+            await EmailNotificationService.SendEmailAsync("stocktracker34@gmail.com", "Test Email 1", "Testing email functionlity");
+            response = "Sent!";
+        }
+        catch (Exception ex)
+        {
+            response = $"Error sending email {ex.Message}";
+        }
+
     }
 }
