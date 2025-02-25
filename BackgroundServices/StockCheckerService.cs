@@ -24,6 +24,7 @@ namespace StockTracker.BackgroundServices
         //I believe this is the function that must be defined
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("TASK STARTED");
             while (!stoppingToken.IsCancellationRequested)
             {
 
@@ -33,10 +34,12 @@ namespace StockTracker.BackgroundServices
                 //Check if we're within 8AM - 5PM
                 if (now.Hour >= 8 && now.Hour < 17)
                 {
+                    _logger.LogInformation("inside hours\n");
                     await CheckStocksAsync();
                 }
                 else
                 {
+                    _logger.LogInformation("outside hours");
                     await CheckStocksAsync();
                 }
                   
@@ -46,6 +49,10 @@ namespace StockTracker.BackgroundServices
             }
         }
 
+        /*
+         * TODO
+         * keep monitoring share volume number 
+         */
         private async Task CheckStocksAsync()
         {
             try
@@ -61,6 +68,9 @@ namespace StockTracker.BackgroundServices
                 var shareVolumeString = await response.Content.ReadAsStringAsync();
 
                 //convert shareVolume to integer 
+                _logger.LogInformation($"Share volume as string: {shareVolumeString}");
+
+                //convert shareVolume to integer 
                 if (int.TryParse(shareVolumeString.Replace(",", ""), out int volume)) ;
 
                 //check threshold
@@ -72,7 +82,7 @@ namespace StockTracker.BackgroundServices
                     await EmailNotificationService.SendEmailAsync(
                         "stocktracker34@gmail.com",
                         "Stock Alert",
-                        $"Volume for {symbols} is {volume}"
+                        $"Volume for {symbols} is {shareVolumeString} (interpreted as: {volume}"
                         );
                 }
             }
