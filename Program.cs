@@ -9,7 +9,8 @@ builder.Services.AddRazorComponents()
 // Add the controllers (this is the missing part)
 builder.Services.AddControllers();  // <-- Add this line to register controller services
 builder.Services.AddHttpClient();
-
+// Register the background service
+builder.Services.AddHostedService<StockCheckerService>();
 builder.Services.AddFluentEmail(builder.Configuration);
 builder.Services.AddScoped<IEmailService, EmailService>();
 var app = builder.Build();

@@ -1,5 +1,6 @@
 ﻿namespace StockTracker.BackgroundServices
 {
+    //NO LONGER USED
     public class EmailMetadata
     {
         public string ToAddress { get; set; }

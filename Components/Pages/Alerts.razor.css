@@ -25,7 +25,7 @@ html, body {
     color: white;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 100px;
+    box-shadow: 0 4px 6px rgba(1, 0, 0, 0.1);
 }
 
 .alert-button:hover {
@@ -34,9 +34,9 @@ html, body {
 }
 
 .alert-list-container {
-    background-color: var(--prim-grey);
-    
-
+    background-color: var(--light-grey);
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     height: 100px; /*will need to change at some point*/
     width: 100%;
     padding-top: 20px;
