@@ -5,6 +5,10 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
+//TODO 
+/*
+ * Need to switch this to using the nasdaq json
+ */
 namespace StockTracker.BackgroundServices
 {
     public class StockCheckerService : BackgroundService

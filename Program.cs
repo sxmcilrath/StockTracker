@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using StockTracker.BackgroundServices;
 using StockTracker.Components;
+using StockTracker.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,11 @@ builder.Services.AddHttpClient();
 builder.Services.AddHostedService<StockCheckerService>();
 builder.Services.AddFluentEmail(builder.Configuration);
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+//configure Db context
+builder.Services.AddDbContext<STdbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
 
 //setup API endpoints
