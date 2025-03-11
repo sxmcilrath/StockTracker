@@ -47,12 +47,14 @@ namespace StockTracker.BackgroundServices
                 if (now.Hour >= 8 && now.Hour < 17)
                 {
                     _logger.LogInformation("inside hours\n");
-                    await CheckStocksAsync();
+                    await UpdateNasdaqScreener();
+                    //await CheckStocksAsync();
                 }
                 else
                 {
                     _logger.LogInformation("outside hours");
-                    await CheckStocksAsync();
+                    await UpdateNasdaqScreener();
+                    //await CheckStocksAsync();
                 }
                   
 
@@ -61,17 +63,26 @@ namespace StockTracker.BackgroundServices
             }
         }
 
-        private async Task UpdateDB()
+        /**
+         * TODO
+         * do I need to update every row of existing items?
+         */
+        private async Task UpdateNasdaqScreener()
         {
+            _logger.LogInformation("inside UNS");
+            
             List<Stock> stocksFromApi;
-
-
+            
             var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            
             var response = await client.GetAsync("https://api.nasdaq.com/api/screener/stocks?tableonly=false&limit=25&download=true");
-
             response.EnsureSuccessStatusCode();
-
+           
+            
             //read the JSON
+            
             var jsonString = await response.Content.ReadAsStringAsync();
 
             //parse 
@@ -89,34 +100,41 @@ namespace StockTracker.BackgroundServices
                 // Deserialize the rows into a list of Stock objects.
                 stocksFromApi = JsonSerializer.Deserialize<List<Stock>>(rows.GetRawText(), options);
             }
-
+            
+            // Convert each deserialized Stock (which has string values) into a fully parsed Stock
+            // using your custom conversion logic in Stock.FromJson
+            stocksFromApi = stocksFromApi.Select(stock => Stock.FromJson(stock)).ToList();
+           
             //get db context
             var scope = _serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<STdbContext>();
-            
+
             //upsert to table 
+            _logger.LogInformation("UNS: BEFORE FOREACH ");
             foreach (var stockItem in stocksFromApi)
             {
+                _logger.LogInformation("UNS - INSIDE FOREACH");
+                
                 //first see if stock exists
                 var existingStock = dbContext.Stocks.FirstOrDefault(s => s.Symbol == stockItem.Symbol);
-
+                
                 //already exists, must update 
                 if (existingStock != null)
                 {
-                    existingStock.Name = stockItem.Name;
-                    existingStock.LastSaleStr = stockItem.LastSaleStr;
-                    existingStock.NetChange = stockItem.NetChange;
-                    existingStock.PercChangeStr = stockItem.PercChangeStr;
-                    existingStock.MarketCap = stockItem.MarketCap;
-                    existingStock.Country = stockItem.Country;
-                    existingStock.IpoYear = stockItem.IpoYear;
-                    existingStock.Volume = stockItem.Volume;
-                    existingStock.Sector = stockItem.Sector;
-                    existingStock.Industry = stockItem.Industry;
-                    existingStock.url = stockItem.url;
+                    _logger.LogInformation($"currently updating {stockItem.Symbol}");
+
+                    existingStock.updateStock(stockItem);
+                }
+                else //doesn't exits, must add
+                {
+                    _logger.LogInformation($"dne, adding {stockItem.Symbol} to ns");
+                    dbContext.Stocks.Add(stockItem);
                 }
             }
-        }
+            dbContext.SaveChangesAsync();
+            _logger.LogInformation("Exiting UNS");
+                     
+            }
         /*
          * TODO
          * keep monitoring share volume number 
