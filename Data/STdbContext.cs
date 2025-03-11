@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using StockTracker.Components.Pages;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace StockTracker.Data
 {
@@ -20,13 +22,16 @@ namespace StockTracker.Data
     /*
      * Class for observations from the nasdaq_screener table 
      */
+    [Table("nasdaq_screener")]
     public class Stock
     {
         [Key]
-        public string Symbol { get; set; }
+        public string Symbol { get; set; }  
         public string Name { get; set; }
+        [JsonPropertyName("lastsale")]
         public string LastSaleStr { get; set; }
         public decimal NetChange { get; set; }
+        [JsonPropertyName("pctchange")]
         public string PercChangeStr { get; set; }
         public decimal MarketCap { get; set; }
         public string Country { get; set; }
@@ -34,6 +39,7 @@ namespace StockTracker.Data
         public long Volume { get; set; }
         public string Sector { get; set; }
         public string Industry { get; set; }
+        public string url { get; set; }
     }
 
 
