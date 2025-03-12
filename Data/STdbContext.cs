@@ -88,6 +88,7 @@ namespace StockTracker.Data
 
         public static Stock FromJson(Stock stock)
         {
+            stock.Symbol = stock.Symbol.TrimEnd();
             stock.LastSale = ParseDecimal(stock.LastSaleStr, true);
             stock.NetChange = ParseDecimal(stock.NetChangeStr, false);
             stock.PercChange = ParseDecimal(stock.PercChangeStr.TrimEnd('%'), false);

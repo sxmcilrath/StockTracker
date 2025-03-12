@@ -104,7 +104,12 @@ namespace StockTracker.BackgroundServices
             // Convert each deserialized Stock (which has string values) into a fully parsed Stock
             // using your custom conversion logic in Stock.FromJson
             stocksFromApi = stocksFromApi.Select(stock => Stock.FromJson(stock)).ToList();
-           
+
+            stocksFromApi = stocksFromApi
+                .GroupBy(s => s.Symbol)
+                .Select(g => g.First())
+                .ToList();
+
             //get db context
             var scope = _serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<STdbContext>();
