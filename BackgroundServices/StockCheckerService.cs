@@ -8,6 +8,7 @@ using StockTracker.Data;
 using System.Text.Json;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 //TODO 
 /*
@@ -65,14 +66,17 @@ namespace StockTracker.BackgroundServices
 
         /**
          * TODO
-         * do I need to update every row of existing items?
+         * how would multi threading work here?
          */
         private async Task UpdateNasdaqScreener()
         {
+            var stopwatch = Stopwatch.StartNew(); //track performance
+
             _logger.LogInformation("inside UNS");
             
-            List<Stock> stocksFromApi;
+            List<Stock> stocksFromApi; //store JSON as list of Stocks
             
+            //http options
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
@@ -105,6 +109,12 @@ namespace StockTracker.BackgroundServices
             // using your custom conversion logic in Stock.FromJson
             stocksFromApi = stocksFromApi.Select(stock => Stock.FromJson(stock)).ToList();
 
+            // Convert raw stock data to fully parsed values
+            stocksFromApi = stocksFromApi
+                .Select(stock => Stock.FromJson(stock))
+                .ToList();
+
+            //remove any duplicates
             stocksFromApi = stocksFromApi
                 .GroupBy(s => s.Symbol)
                 .Select(g => g.First())
@@ -114,32 +124,35 @@ namespace StockTracker.BackgroundServices
             var scope = _serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<STdbContext>();
 
+            var incomingSymbols = stocksFromApi.Select(s => s.Symbol).ToList();
+
+            // Load all existing stocks for these symbols in one query
+            var existingStocksDict = dbContext.Stocks
+                .Where(s => incomingSymbols.Contains(s.Symbol))
+                .ToDictionary(s => s.Symbol, s => s);
+
             //upsert to table 
-            _logger.LogInformation("UNS: BEFORE FOREACH ");
             foreach (var stockItem in stocksFromApi)
             {
-                _logger.LogInformation("UNS - INSIDE FOREACH");
-                
+               
                 //first see if stock exists
-                var existingStock = dbContext.Stocks.FirstOrDefault(s => s.Symbol == stockItem.Symbol);
-                
                 //already exists, must update 
-                if (existingStock != null)
+                if (existingStocksDict.TryGetValue(stockItem.Symbol, out var existingStock))
                 {
-                    _logger.LogInformation($"currently updating {stockItem.Symbol}");
-
                     existingStock.updateStock(stockItem);
                 }
                 else //doesn't exits, must add
                 {
-                    _logger.LogInformation($"dne, adding {stockItem.Symbol} to ns");
                     dbContext.Stocks.Add(stockItem);
                 }
             }
+
             dbContext.SaveChangesAsync();
             _logger.LogInformation("Exiting UNS");
-                     
-            }
+            stopwatch.Stop();
+            _logger.LogInformation($"Exiting UpdateNasdaqScreener. Total time: {stopwatch.Elapsed.TotalSeconds} seconds");
+
+        }
         /*
          * TODO
          * keep monitoring share volume number 
