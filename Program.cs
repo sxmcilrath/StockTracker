@@ -15,6 +15,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddHostedService<StockCheckerService>();
 builder.Services.AddFluentEmail(builder.Configuration);
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddBlazorBootstrap();
 
 //configure Db context
 builder.Services.AddDbContext<STdbContext>(options =>

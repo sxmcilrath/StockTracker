@@ -107,6 +107,7 @@ namespace StockTracker.Data
             MarketCap = stock.MarketCap;
             Country = stock.Country;
             IpoYear = stock.IpoYear;
+
             Volume = stock.Volume;
             Sector = stock.Sector;
             Industry = stock.Industry;
@@ -128,11 +129,17 @@ namespace StockTracker.Data
     public class Alert
     {
         [Key]
+        [Column("alert_id")]
         public int AlertId { get; set; }  // Unique primary key
+        [Column("symbol")]
         public string Symbol { get; set; }
+        [Column("threshold")]
         public long Threshold { get; set; }
-        public int Condition { get; set; }
+        [Column("condition")]
+        public char Condition { get; set; }
+        [Column("active")]
         public bool Active { get; set; }
+        [Column("user_email")]
         public string Email { get; set; }
     }
 
