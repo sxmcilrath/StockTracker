@@ -44,7 +44,7 @@
             <!-- Your Add Alert Form -->
             <form>
                 <input type="text" placeholder="Alert Name" />
-                <input type="" placeholder="Description" />
+                <NumberInput TValue="int" @bind-Value="@addAlertThreshold" Placeholder="Stock Threshold" />
                 <button type="button" class="popup-button" @onclick="SubmitAlert">Submit</button>
             </form>
             <button class="popup-button" @onclick="() => addAlertPopup = false">Close</button>
@@ -71,6 +71,8 @@
 
 @code {
     private bool addAlertPopup = false;
+    private int addAlertThreshold;
+
     private bool selectAlertPopup = false;
     private string response = "waiting";
 
