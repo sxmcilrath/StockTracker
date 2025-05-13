@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using StockTracker.BackgroundServices;
 using StockTracker.Components;
 using StockTracker.Data;
-using BlazorBootstrap;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
