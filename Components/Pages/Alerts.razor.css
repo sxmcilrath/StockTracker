@@ -43,6 +43,17 @@ html, body {
     border-radius: 0.5rem
 }
 
+.alert-name-container{
+    display:flex;
+    justify-content: center;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.alert-detail-container{
+    display: flex;
+    flex-direction: row;
+}
 /* Reuse MD-Overlay and MD-Popup styling from your mechanic dashboard */
 .MD-Overlay {
     position: fixed;

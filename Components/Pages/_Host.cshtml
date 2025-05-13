@@ -1,0 +1,29 @@
+﻿@page "/"
+@namespace StockTracker.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>StockTracker</title>
+	<base href="~/" />
+
+	<!-- your other CSS -->
+	<link href="css/app.css" rel="stylesheet" />
+
+	<!-- BlazorBootstrap CSS -->
+	<link href="_content/BlazorBootstrap/css/blazorBootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+	<!-- This is the Blazor server app root -->
+	<component type="typeof(App)" render-mode="ServerPrerendered" />
+
+	<!-- Blazor server runtime -->
+	<script src="_framework/blazor.server.js"></script>
+
+	<!-- BlazorBootstrap JS – MUST come *after* blazor.server.js -->
+	<script src="_content/BlazorBootstrap/js/blazorBootstrap.min.js"></script>
+</body>
+</html>

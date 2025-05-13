@@ -41,12 +41,40 @@
 {
     <div class="MD-Overlay" @onclick="() => addAlertPopup = false">
         <div class="MD-Popup" @onclick:stopPropagation>
-            <h4>Add New Alert</h4>
-            <p>Enter the alert details below:</p>
-            <!-- Your Add Alert Form -->
             <form>
-                <input type="text" placeholder="Alert Name" />
-                <NumberInput TValue="int" @bind-Value="@addAlertThreshold" Placeholder="Stock Threshold" />
+                <!-- alert name edit field and icon-->
+                <div class="alert-name-container">
+                    @if (editingAlertName)
+                    {
+                      <InputText 
+                          @bind-Value=alertName
+                          @onblur="() => editingAlertName = false"
+                          @onkeyup="@((KeyboardEventArgs e) => 
+                          {
+                            if(e.Key =="Enter") editingAlertName = false;
+                          })"
+                          class="editable-input"/>
+ 
+                    }
+                    else{
+                        <h4 class="editable-label" @onclick="BeginEdit"> 
+                            @alertName
+                        </h4>
+                    }
+                    <Icon Name="IconName.PencilFill" Size="IconSize.x6" Color="IconColor.Muted" onclick="BeginEdit"/>
+                
+                </div>
+                <p>Enter the alert details below:</p>
+                
+                <div class="alert-detail-container">
+                    <!-- tag dropdown -->
+                    <div class="alert-tag-container"> 
+                        <Button Color="ButtonColor.Primary" onclick="() => showTagDropdown = !showTagDropdown"> <Icon Name="IconName.ArrowDownShort"/>
+                            @alertTag
+                        </Button> 
+                    </div>
+                    <NumberInput TValue="int" @bind-Value="@addAlertThreshold" Placeholder="Stock Threshold" />
+                </div>
                 <button type="button" class="popup-button" @onclick="SubmitAlert">Submit</button>
             </form>
             <button class="popup-button" @onclick="() => addAlertPopup = false">Close</button>
@@ -78,12 +106,34 @@
     private bool selectAlertPopup = false;
     private string response = "waiting";
 
+    private bool editingAlertName = false;
+    private string alertName = "Alert Name";
+
+    private string alertTag = "Stock Tag";
+
+    private bool showTagDropdown = false;
+
     private void SubmitAlert()
     {
         // Add your submission logic here
         addAlertPopup = false;
     }
 
+    private void BeginEdit()
+    {
+        editingAlertName = true;
+
+
+    }
+    private void EndEdit()
+    {
+        editingAlertName = false;
+    }
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+             EndEdit();
+    }
     private async Task GetStockInfo()
     {
         response = "running";
