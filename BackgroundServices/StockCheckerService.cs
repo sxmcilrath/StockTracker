@@ -4,21 +4,34 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using StockTracker.Data;
+using System.Text.Json;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
+//TODO 
+/*
+ * Need to switch this to using the nasdaq json
+ */
 namespace StockTracker.BackgroundServices
 {
     public class StockCheckerService : BackgroundService
     {
         private readonly ILogger<StockCheckerService> _logger;
+        private readonly IServiceProvider _serviceProvider; 
 
         //we use the factory rather than injecting HTTPClient because it has better resc mngmnt and is 
         //meant to be reused without socket exhaustion 
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public StockCheckerService(ILogger<StockCheckerService> logger, IHttpClientFactory httpClientFactory)
+        
+
+        public StockCheckerService(ILogger<StockCheckerService> logger, IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _serviceProvider = serviceProvider;
         }
 
         //I believe this is the function that must be defined
@@ -35,12 +48,14 @@ namespace StockTracker.BackgroundServices
                 if (now.Hour >= 8 && now.Hour < 17)
                 {
                     _logger.LogInformation("inside hours\n");
-                    await CheckStocksAsync();
+                    await UpdateNasdaqScreener();
+                    //await CheckStocksAsync();
                 }
                 else
                 {
                     _logger.LogInformation("outside hours");
-                    await CheckStocksAsync();
+                    await UpdateNasdaqScreener();
+                    //await CheckStocksAsync();
                 }
                   
 
@@ -49,6 +64,95 @@ namespace StockTracker.BackgroundServices
             }
         }
 
+        /**
+         * TODO
+         * how would multi threading work here?
+         */
+        private async Task UpdateNasdaqScreener()
+        {
+            var stopwatch = Stopwatch.StartNew(); //track performance
+
+            _logger.LogInformation("inside UNS");
+            
+            List<Stock> stocksFromApi; //store JSON as list of Stocks
+            
+            //http options
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            
+            var response = await client.GetAsync("https://api.nasdaq.com/api/screener/stocks?tableonly=false&limit=25&download=true");
+            response.EnsureSuccessStatusCode();
+           
+            
+            //read the JSON
+            
+            var jsonString = await response.Content.ReadAsStringAsync();
+
+            //parse 
+            using (JsonDocument jsonDoc = JsonDocument.Parse(jsonString))
+            {
+                var rows = jsonDoc.RootElement.GetProperty("data").GetProperty("rows");
+
+                // Set up options to ignore case (if needed) and ignore unknown properties.
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    IgnoreNullValues = true  // For System.Text.Json versions prior to .NET 5.0. For .NET 5+, use DefaultIgnoreCondition
+                };
+
+                // Deserialize the rows into a list of Stock objects.
+                stocksFromApi = JsonSerializer.Deserialize<List<Stock>>(rows.GetRawText(), options);
+            }
+            
+            // Convert each deserialized Stock (which has string values) into a fully parsed Stock
+            // using your custom conversion logic in Stock.FromJson
+            stocksFromApi = stocksFromApi.Select(stock => Stock.FromJson(stock)).ToList();
+
+            // Convert raw stock data to fully parsed values
+            stocksFromApi = stocksFromApi
+                .Select(stock => Stock.FromJson(stock))
+                .ToList();
+
+            //remove any duplicates
+            stocksFromApi = stocksFromApi
+                .GroupBy(s => s.Symbol)
+                .Select(g => g.First())
+                .ToList();
+
+            //get db context
+            var scope = _serviceProvider.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<STdbContext>();
+
+            var incomingSymbols = stocksFromApi.Select(s => s.Symbol).ToList();
+
+            // Load all existing stocks for these symbols in one query
+            var existingStocksDict = dbContext.Stocks
+                .Where(s => incomingSymbols.Contains(s.Symbol))
+                .ToDictionary(s => s.Symbol, s => s);
+
+            //upsert to table 
+            foreach (var stockItem in stocksFromApi)
+            {
+               
+                //first see if stock exists
+                //already exists, must update 
+                if (existingStocksDict.TryGetValue(stockItem.Symbol, out var existingStock))
+                {
+                    existingStock.updateStock(stockItem);
+                }
+                else //doesn't exits, must add
+                {
+                    dbContext.Stocks.Add(stockItem);
+                }
+            }
+
+            dbContext.SaveChangesAsync();
+            _logger.LogInformation("Exiting UNS");
+            stopwatch.Stop();
+            _logger.LogInformation($"Exiting UpdateNasdaqScreener. Total time: {stopwatch.Elapsed.TotalSeconds} seconds");
+
+        }
         /*
          * TODO
          * keep monitoring share volume number 

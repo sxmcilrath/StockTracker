@@ -13,6 +13,9 @@ from selenium.webdriver.support import expected_conditions as EC
 
 app = Flask(__name__)
 @app.route('/get-stock-info', methods=['GET'])  
+
+## potentially redo logic
+# use nasdaq and grab their csv
 def get_stock_info():
     symbols = request.args.get('symbols', '') #'' is the default value 
     symbols_list = symbols.split(",")  # Split into list of symbols
@@ -56,6 +59,7 @@ def get_stock_info():
             print("Element not found:", e)
             driver.quit()
             return "Error"
+
     driver.quit()
     return share_volume
 

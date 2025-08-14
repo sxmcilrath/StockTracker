@@ -6,6 +6,15 @@
 
 <PageTitle>Home</PageTitle>
 
+@if (OperatingSystem.IsBrowser())
+{
+    <p>Running in Blazor WebAssembly</p>
+}
+else
+{
+    <p>Running in Blazor Server</p>
+}
+
 <h1>@title</h1>
 <button @onclick="GetStockDataAsync"> get IBM</button>
 
